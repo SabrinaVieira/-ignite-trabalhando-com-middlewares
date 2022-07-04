@@ -41,25 +41,26 @@ function checksTodoExists(request, response, next) {
   
   const user = users.find((user)=> user.username == username);
 
-  if(!user){
-    return response.status(404).json({error: 'Usuário não encontrado'});
+  // if(!user){
+  //   return response.status(404).json({error: `${user} Usuário não encontrado`});
+  // }
+  
+  // const testUuidV4 = validate(todoId);
+  
+  if(!validate(todoId)) {
+    return response.status(404).json({error: `${validate(todoId)} ID todo não é valido!`});
   }
+  
   const userTodo = user.todos.find((todo)=> todo.id == todoId);
 
-  const testUuidV4 = validate(todoId);
-  
-  if(testUuidV4 == false) {
-    return response.status(400).json({error: 'ID todo não é valido!'});
-  }
-
-
-  if(todo){
+  if(!user || !todo){
     // request.user = user;
-    request.todo = userTodo;
-    return next()
+    return response.status(404).json({error: `${todo} Todo não encontrado!`});
   }
-
-  return response.status(404).json({error: 'Todo não encontrado!'});
+  
+  request.todo = userTodo;
+  request.user = user;
+  return next()
 
 }
 
