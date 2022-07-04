@@ -11,18 +11,70 @@ const users = [];
 
 function checksExistsUserAccount(request, response, next) {
   // Complete aqui
+  const { username } = request.headers;
+  const user = users.find((user)=> user.username == username);
+
+  if(!user){
+    return response.status(404).json({error: 'Usuário não encontrado'});
+  }
+
+  request.user = user;
+  return next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
   // Complete aqui
+  const { user } = request;
+
+  if((user.pro == false && user.todos.length < 10) || user.pro){
+    return next();
+  }
+  
+
+  return response.status(403).json({error: "Usuario já tem mais de 10 todos"})
 }
 
 function checksTodoExists(request, response, next) {
   // Complete aqui
+  const { username } = request.headers;
+  const { todoId } = request.params;
+  
+  const user = users.find((user)=> user.username == username);
+
+  if(!user){
+    return response.status(404).json({error: 'Usuário não encontrado'});
+  }
+  const userTodo = user.todos.find((todo)=> todo.id == todoId);
+
+  const testUuidV4 = validate(todoId);
+  
+  if(testUuidV4 == false) {
+    return response.status(400).json({error: 'ID todo não é valido!'});
+  }
+
+
+  if(todo){
+    // request.user = user;
+    request.todo = userTodo;
+    return next()
+  }
+
+  return response.status(404).json({error: 'Todo não encontrado!'});
+
 }
 
 function findUserById(request, response, next) {
   // Complete aqui
+  const { userId } = request.params;
+  const user = users.find((user) => user.id == userId );
+
+  if(!user){
+    return response.status(404).json({error: 'Usuário não encontrado!'});
+  }
+  
+  request.user = user;
+  return next()
+
 }
 
 app.post('/users', (request, response) => {
@@ -91,6 +143,7 @@ app.post('/todos', checksExistsUserAccount, checksCreateTodosUserAvailability, (
 app.put('/todos/:id', checksTodoExists, (request, response) => {
   const { title, deadline } = request.body;
   const { todo } = request;
+  console.log(todo);
 
   todo.title = title;
   todo.deadline = new Date(deadline);
@@ -100,6 +153,7 @@ app.put('/todos/:id', checksTodoExists, (request, response) => {
 
 app.patch('/todos/:id/done', checksTodoExists, (request, response) => {
   const { todo } = request;
+  console.log(todo);
 
   todo.done = true;
 
