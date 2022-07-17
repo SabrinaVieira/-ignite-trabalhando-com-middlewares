@@ -45,15 +45,16 @@ function checksTodoExists(request, response, next) {
   //   return response.status(404).json({error: `${user} Usuário não encontrado`});
   // }
   
-  // const testUuidV4 = validate(todoId);
+  // const testUuidV4 = validate(todoId, 4);
   
-  if(!validate(todoId)) {
-    return response.status(404).json({error: `${validate(todoId)} ID todo não é valido!`});
+  if(!validate(todoId, 4)) {
+    console.log(!validate(todoId, 4));
+    return response.status(400).json({error: `${validate(todoId)} ID todo não é valido!`});
   }
   
   const userTodo = user.todos.find((todo)=> todo.id == todoId);
 
-  if(!user || !todo){
+  if(!user || !userTodo){
     // request.user = user;
     return response.status(404).json({error: `${todo} Todo não encontrado!`});
   }
